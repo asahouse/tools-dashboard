@@ -1,0 +1,4 @@
+tools-dashboard:
+  login:
+    users: #用户名及密码,使用逗号分隔用户,分号分隔名与密码(account1:pass1,acount2:pass2)
+      - toolsDashboardAmwayAdmin:4bi8votHqpmXcLNn2

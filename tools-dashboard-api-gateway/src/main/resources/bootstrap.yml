@@ -1,0 +1,78 @@
+discovery:
+  dns: localhost
+  port: 9001
+
+server:
+  port: 9002
+
+spring:
+  application:
+    name: td-api-gateway
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+  mvc:
+    favicon:
+      enabled: false
+
+zuul:
+#  ignored-patterns: /**/auth/**,/**/download/**
+  routes:
+    auth:
+      path: /auth/**
+      serviceId: TD-AUTHORIZATION
+    baidu:
+      path: /baidu/**
+      serviceId: TD-BAIDU           #对应各个服务的service.application.name
+    aatool:
+      path: /aatool/**
+      serviceId: TD-AATOOL
+    aplus:
+      path: /aplus/**
+      serviceId: TD-APLUS
+    web:
+      path: /web/**
+      serviceId: TD-WEB-FACADE
+  sensitive-headers:                #全局不过滤敏感header信息
+  add-host-header: true             #穿透Eureka服务带上header信息
+  host:
+    socket-timeout-millis: 500000
+    connect-timeout-millis: 500000
+
+ribbon:
+  ConnectTimeout: 500000             #请求连接超时
+  ReadTimeout: 500000                #请求处理超时
+  OkToRetryOnAllOperations: true    #是否所有响应都需要重试机制
+  MaxAutoRetries: 5                 #重试次数 -> 需要少于熔断超时才会进行重试
+  MaxAutoRetriesNextServer: 10       #切换相同服务后,再重试的次数
+    #retryableStatusCodes: 404,502  #对状态判断进行重试(当前所有响应都重试就不需要状态判定)
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false            #关闭熔断超时,因为涉及第三方请求无法限定超时时间
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 150000  #熔断超时, 将不再请求此服务 150秒
+
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+
+logging:
+  level:
+    org.codeworks.web: DEBUG
+  path: logs/${spring.application.name}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${discovery.dns}:${discovery.port}/eureka/
+  instance:
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health

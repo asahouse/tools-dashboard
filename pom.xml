@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.codeworks.web</groupId>
+    <artifactId>tools-dashboard-aggregate</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>tools-dashboard</name>
+    <description>工具数据平台</description>
+
+    <modules>
+        <module>tools-dashboard-baidu</module>
+        <module>tools-dashboard-aatool</module>
+        <module>tools-dashboard-myspace</module>
+        <module>tools-dashboard-discovery</module>
+        <module>tools-dashboard-config</module>
+        <module>tools-dashboard-config-properties</module>
+        <module>tools-dashboard-api-gateway</module>
+        <module>tools-dashboard-web-facade</module>
+        <module>tools-dashboard-authorization</module>
+    </modules>
+</project>

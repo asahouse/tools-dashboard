@@ -1,0 +1,7 @@
+org\codeworks\web\toolsdashboardauthorization\controller\Response.class
+org\codeworks\web\toolsdashboardauthorization\service\UserManager.class
+org\codeworks\web\toolsdashboardauthorization\configuration\PlatformUsers.class
+org\codeworks\web\toolsdashboardauthorization\JedisConfig.class
+org\codeworks\web\toolsdashboardauthorization\ToolsDashboardAuthorizationApplication.class
+org\codeworks\web\toolsdashboardauthorization\utils\KCRandomCharData.class
+org\codeworks\web\toolsdashboardauthorization\controller\UserController.class

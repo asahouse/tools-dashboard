@@ -1,0 +1,31 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: td-discovery
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+
+logging:
+  level:
+    org.codeworks.web: DEBUG
+  path: logs/${spring.application.name}
+
+eureka:
+  instance:
+    hostname: localhost
+  server:
+    enable-self-preservation: false #关闭保护模式
+  client:
+    register-with-eureka: false #是否将自己注册到Eureka
+    fetch-registry: false       #是否从Eureka服务器获取注册信息
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/

@@ -1,0 +1,44 @@
+discovery:
+  dns: localhost
+  port: 9001
+
+server:
+  port: 0
+
+spring:
+  application:
+    name: td-config
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+  mvc:
+    favicon:
+      enabled: false
+  cloud:
+    config:
+      server:
+        git:
+          uri: http://122.114.96.105/amway/tools-dashboard.git
+          username: configuser #通用管理账户
+          password: 20141222
+          search-paths:
+            - tools-dashboard-config-properties/default
+            - tools-dashboard-config-properties/local
+            - tools-dashboard-config-properties/prod
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+logging:
+  level:
+    org.codeworks.andc.ocs: DEBUG
+  path: logs/${spring.application.name}
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${discovery.dns}:${discovery.port}/eureka/
+  instance:
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health

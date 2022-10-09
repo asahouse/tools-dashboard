@@ -1,0 +1,39 @@
+discovery:
+  dns: localhost
+  port: 9001
+
+server:
+  port: 0
+
+docker:
+  enable: false
+  redis:
+    dns: redis
+
+spring:
+  application:
+    name: td-aatool
+  profiles:
+    active: prod
+  jackson:
+      date-format: yyyy-MM-dd HH:mm:ss
+      default-property-inclusion: non_null
+      time-zone: Asia/Shanghai
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+
+logging:
+  level:
+    org.codeworks.web: DEBUG
+  path: logs/${spring.application.name}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${discovery.dns}:${discovery.port}/eureka/
+  instance:
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health

@@ -1,0 +1,87 @@
+discovery:
+  dns: localhost
+  port: 9001
+
+server:
+  port: 0
+
+logback:
+  path: logs/td-aplus
+  level: ERROR
+  project:
+    level: ERROR
+
+logging:
+  level:
+    org.codeworks.web: DEBUG
+  config: classpath:logback-spring.xml
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${discovery.dns}:${discovery.port}/eureka/
+  instance:
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
+
+spring:
+  application:
+    name: td-aplus
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://122.114.96.105:3308/myspace2?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: ps4northchinamyspace2svr%mysqladmin
+    password: l<WN2eIM
+    driverClassName: com.mysql.jdbc.Driver
+    initialSize: 10
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,log4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password:
+    pool:
+      max-active: -1
+      max-idle: 50
+      min-idle: 10
+      max-wait: -1
+    timeout: 10000
+  messages:
+    basename: i18n/messages
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+
+endpoints:
+  shutdown:
+    enabled: true
+  metrics:
+    sensitive: false
+    enabled: true
+  beans:
+    sensitive: false
+    enabled: true
+  dump:
+    sensitive: false
+    enabled: true
+  env:
+    sensitive: false
+    enabled: true

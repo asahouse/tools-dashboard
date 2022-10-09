@@ -1,0 +1,263 @@
+version: '3.4'
+
+## ----------- 全局参数 ------------
+x-default_java_opt_prop:
+  &default_java_opt_prop
+  JAVA_OPT: -Xmx64m
+
+x-default_spring_opt_prop:
+  &default_spring_opt_prop
+  SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+
+
+
+
+## ----------- 服务参数 ------------
+networks:
+  td-web:
+
+services:
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    expose:
+      - "6397" #内部端口
+    networks:
+      td-web:
+        aliases:
+          - redis
+
+  discovery:
+    labels:
+      name: "服务注册中心"
+    image: tools-dashboard-discovery
+    container_name: tools-dashboard-discovery
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-discovery
+    ports:
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: bridge
+    networks:
+      td-web:
+        aliases:
+          - discovery #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+#      *default_java_opt_prop
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-discovery/target/"
+        target: "/jar"
+
+  config:
+    labels:
+      name: "配置中心"
+    image: tools-dashboard-config
+    container_name: tools-dashboard-config
+    #3.ver下单独compose无法控制次序,此依赖只作为容器内部关联
+    #2.ver下单独compose可控order,通过指定服务后检查健康状态及启动状态
+    depends_on:
+      - discovery
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-config
+    networks:
+      td-web:
+        aliases:
+          - config #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+#      << : *default_java_opt_prop
+#      << : *default_spring_opt_prop
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-config/target/"
+        target: "/jar"
+
+  authorization:
+      labels:
+        name: "权鉴服务"
+      image: tools-dashboard-authorization
+      container_name: tools-dashboard-authorization
+      depends_on:
+        - redis
+        - discovery
+        - config
+      build:
+        context: .
+        dockerfile: common.Dockerfile
+        args:
+          PROJECT_NAME: tools-dashboard-authorization
+      networks:
+        td-web:
+          aliases:
+            - authorization #高可用别名
+      environment:
+        JAVA_OPT: -Xmx64m
+        SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Dspring.redis.host=redis
+      volumes:
+        - type: "bind"
+          source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-authorization/target/"
+          target: "/jar"
+
+  baidu:
+    labels:
+      name: "百度数据服务"
+    image: tools-dashboard-baidu
+    container_name: tools-dashboard-baidu
+    depends_on:
+      - redis
+      - discovery
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-baidu
+    networks:
+      td-web:
+        aliases:
+          - baidu #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Ddocker.enable=true
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-baidu/target/"
+        target: "/jar"
+
+  aatool:
+    labels:
+      name: "活动助手数据服务"
+    image: tools-dashboard-aatool
+    container_name: tools-dashboard-aatool
+    depends_on:
+      - redis
+      - discovery
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-aatool
+    networks:
+      td-web:
+        aliases:
+          - aatool #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xms64m -Xmx128m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Ddocker.enable=true
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-aatool/target/"
+        target: "/jar"
+
+  myspace:
+    labels:
+      name: "A+画册数据服务"
+    image: tools-dashboard-myspace-image
+    container_name: tools-dashboard-myspace
+    depends_on:
+      - redis
+      - discovery
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-myspace-cap
+    networks:
+      td-web:
+        aliases:
+          - myspace #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xms64m -Xmx128m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Dspring.redis.host=redis -Dco.paralleluniverse.fibers.detectRunawayFibers=false
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-myspace/target/"
+        target: "/jar"
+
+  web-facade:
+    labels:
+      name: "面向Web提供的业务服务"
+    image: tools-dashboard-web-facade
+    container_name: tools-dashboard-web-facade
+    depends_on:
+      - discovery
+      - baidu
+      - aatool
+      - myspace
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-web-facade
+    networks:
+      td-web:
+        aliases:
+          - web-facade #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xmx64m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-web-facade/target/"
+        target: "/jar"
+
+  api-gateway:
+    labels:
+      name: "网关服务"
+    image: tools-dashboard-api-gateway
+    container_name: tools-dashboard-api-gateway
+    depends_on:
+      - discovery
+      - baidu
+      - aatool
+      - myspace
+      - web-facade
+    build:
+      context: .
+      dockerfile: common.Dockerfile
+      args:
+        PROJECT_NAME: tools-dashboard-api-gateway
+    ports:
+      - target: 9002
+        published: 9002
+        protocol: tcp
+        mode: bridge
+    networks:
+      td-web:
+        aliases:
+          - api-gateway #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-api-gateway/target/"
+        target: "/jar"

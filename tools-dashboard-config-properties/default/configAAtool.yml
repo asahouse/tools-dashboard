@@ -1,0 +1,26 @@
+tools-dashboard:
+  aatool:
+    template:
+      items:
+        - 0&&自定义&&action&&activation
+        - 1&&气质女王秀&&action&&inactivation
+        - 2&&美妈的早晨&&action&&activation
+        - 3&&亲子节日派对&&action&&activation
+        - 4&&针对白领人群的“减压派对”&&action&&activation
+        - 5&&针对青年男女的“交友派对”&&action&&activation
+        - 6&&针对运动人群的“比赛之夜”&&action&&activation
+        - 7&&美容主题社群系列套装《悦享“美”刻》&&action&&activation
+        - 8&&美食主题社群系列套装《悦享“食”刻》&&action&&activation
+        - 9&&这个圣诞有你不一YOUNG&&action&&activation
+        - 10&&这个新年有你不一YOUNG&&action&&activation
+        - 11&&2018  “缤纷夏日FUN享派”&&action&&activation
+    invitaion:
+      items:
+        - 1&&邀请函-美妆邀请函&&label&&activation
+        - 2&&邀请函-蓝丝带&&label&&activation
+        - 3&&邀请函-跑步&&label&&activation
+        - 4&&邀请函-独角兽&&label&&activation
+        - 5&&邀请函-美食&&label&&activation
+        - 6&&邀请函-XS邀请函&&label&&activation
+        - 7&&邀请函-扑克牌&&label&&activation
+        - 8&&邀请函-XS新口味上市&&label&&activation

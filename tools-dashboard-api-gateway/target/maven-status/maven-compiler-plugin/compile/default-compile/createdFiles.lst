@@ -1,0 +1,4 @@
+org\codeworks\web\toolsdashboardapigateway\service\AuthorizationSerivce.class
+org\codeworks\web\toolsdashboardapigateway\dto\Response.class
+org\codeworks\web\toolsdashboardapigateway\filter\ApiFilter.class
+org\codeworks\web\toolsdashboardapigateway\ToolsDashboardApiGatewayApplication.class

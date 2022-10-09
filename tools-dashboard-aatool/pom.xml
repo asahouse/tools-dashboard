@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.codeworks.web</groupId>
+	<artifactId>tools-dashboard-aatool</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>tools-dashboard-aatool</name>
+	<description>协助工具Dashboard获取活动工具数据</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/><!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+
+		<docker.plugin.version>1.3.7</docker.plugin.version>
+		<docker.repository>120.77.183.28:4545</docker.repository>
+		<docker.registry.name>tools-dashboard</docker.registry.name>
+		<docker.repository.username>asahouse</docker.repository.username>
+		<docker.repository.password>AsAhouse158</docker.repository.password>
+	</properties>
+
+	<dependencies>
+		<!--SpringCloud-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+
+		<!--SpringBoot-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-undertow</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jooq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<!--数据类-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>6.0.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.redisson/redisson -->
+		<!--Redisson会默认实现并注入CachingProvider 和 Ehcache整合Spring冲突形成多个CP-->
+		<dependency>
+			<groupId>org.redisson</groupId>
+			<artifactId>redisson</artifactId>
+			<version>3.5.5</version>
+		</dependency>
+
+		<!--JVM 监控类-->
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-servlets</artifactId>
+			<version>3.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-jcache</artifactId>
+			<version>3.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ryantenney.metrics</groupId>
+			<artifactId>metrics-spring</artifactId>
+			<version>3.1.3</version>
+		</dependency>
+
+
+		<!--辅助类-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.41</version>
+		</dependency>
+
+		<!--Apache类别-->
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.7</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.11</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.3</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.9.0</version>
+		</dependency>
+
+		<!--文件缓存-->
+		<!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Edgware.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<finalName>tools-dashboard-aatool</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${docker.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>${docker.repository}/${docker.registry.name}/${project.name}</repository>
+					<tag>${project.version}</tag>
+					<username>${docker.repository.username}</username>
+					<password>${docker.repository.password}</password>
+					<buildArgs>
+						<PROJECT_NAME>${project.build.finalName}</PROJECT_NAME>
+						<JAR_PATH>./target/</JAR_PATH>
+					</buildArgs>
+				</configuration>
+			</plugin>
+
+			<!-- The jOOQ code generator plugin -->
+			<plugin>
+				<groupId>org.jooq</groupId>
+				<artifactId>jooq-codegen-maven</artifactId>
+				<version>3.9.2</version>
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<goals>-->
+<!--							<goal>generate</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--				<configuration>-->
+<!--					<jdbc>-->
+<!--						<driver>com.mysql.cj.jdbc.Driver</driver>-->
+<!--						&lt;!&ndash;<url>jdbc:mysql://ps4chinanorthnutrilitefarm7.mysqldb.chinacloudapi.cn:3306/aatool?useUnicode=true&amp;characterEncoding=UTF-8</url>&ndash;&gt;-->
+<!--						<url>jdbc:mysql://122.114.96.105:3309/aatool?useUnicode=true&amp;characterEncoding=UTF-8</url>-->
+<!--						<user>ps4chinanorthnutrilitefarm7%vadmin</user>-->
+<!--						<password>rFhXur'*</password>-->
+<!--					</jdbc>-->
+<!--					<generator>-->
+<!--						<database>-->
+<!--							&lt;!&ndash;<syntheticPrimaryKeys>public\..*\.id</syntheticPrimaryKeys>&ndash;&gt;-->
+<!--							&lt;!&ndash;<overridePrimaryKeys>override_primmary_key</overridePrimaryKeys>&ndash;&gt;-->
+
+<!--							<name>org.jooq.util.mysql.MySQLDatabase</name>-->
+<!--							<includes>.*</includes>-->
+<!--							<excludes />-->
+<!--							<dateAsTimestamp>true</dateAsTimestamp>-->
+<!--							<inputSchema>aatool</inputSchema>-->
+<!--						</database>-->
+<!--						<generate>-->
+<!--							<deprecated>false</deprecated>-->
+<!--							&lt;!&ndash;<instanceFields>true</instanceFields>&ndash;&gt;-->
+<!--							&lt;!&ndash;生成dao和pojo&ndash;&gt;-->
+<!--							<daos>true</daos>-->
+<!--							<pojos>true</pojos>-->
+<!--							&lt;!&ndash;把数据库时间类型映射到java 8时间类型&ndash;&gt;-->
+<!--							<javaTimeTypes>true</javaTimeTypes>-->
+<!--							&lt;!&ndash;<interfaces>true</interfaces>&ndash;&gt;-->
+<!--							&lt;!&ndash;不在生成的代码中添加spring注释，比如@Repository&ndash;&gt;-->
+<!--							&lt;!&ndash;<springAnnotations>false</springAnnotations>&ndash;&gt;-->
+<!--						</generate>-->
+<!--						<target>-->
+<!--							<packageName>org.codeworks.web.toolsdashboardaatool.jooq.aatool</packageName>-->
+<!--							<directory>src/main/java</directory>-->
+<!--						</target>-->
+<!--					</generator>-->
+<!--				</configuration>-->
+
+				<dependencies>
+					<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>6.0.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>

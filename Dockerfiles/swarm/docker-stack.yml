@@ -1,0 +1,243 @@
+version: '3.4'
+
+## ----------- 注意 ------------
+# 首先对host进行容器初始化, 已安装docker CE/docker machine后, 需要执行 [docker swarm init] 命令初始化swarm管理节点, 可用[docker node ls]查看本机信息, 其余docker节点可用[docker swarm join]加入
+# 与compose.yml的区别在于不再使用build参数及去除container_name参数, 改用deploy(>=3.4版本), 始于镜像上进行直接部署, 需要首先具有镜像才能stack deploy成功, [docker stack ps appname]查看
+# 建议使用docker-compose build对compose.yml构建后,再执行docker stack deploy -c stack.yml appname
+
+## ----------- 全局参数 ------------
+x-default_swarm_deploy_prop:
+  &default_swarm_deploy_prop
+  replicas: 1
+  update_config:
+    parallelism: 1
+    delay: 10s
+  restart_policy:
+    condition: on-failure
+
+
+
+
+## ----------- 服务参数 ------------
+networks:
+  td-web:
+
+services:
+
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - td-web
+
+  redis:
+    image: redis:latest
+    networks:
+      td-web:
+        aliases:
+          - redis
+
+  discovery:
+    labels:
+      name: "服务注册中心"
+    image: tools-dashboard-discovery
+    deploy:
+      *default_swarm_deploy_prop
+    ports:
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: bridge
+    networks:
+      td-web:
+        aliases:
+          - discovery #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-discovery/target/"
+        target: "/jar"
+
+  config:
+    labels:
+      name: "配置中心"
+    image: tools-dashboard-config
+    #3.ver下单独compose无法控制次序,此依赖只作为容器内部关联
+    #2.ver下单独compose可控order,通过指定服务后检查健康状态及启动状态
+    depends_on:
+      - discovery
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - config #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-config/target/"
+        target: "/jar"
+
+  authorization:
+    labels:
+      name: "权鉴服务"
+    image: tools-dashboard-authorization
+    depends_on:
+      - redis
+      - discovery
+      - config
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - authorization #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Dspring.redis.host=redis
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-authorization/target/"
+        target: "/jar"
+
+  baidu:
+    labels:
+      name: "百度数据服务"
+    image: tools-dashboard-baidu
+    depends_on:
+      - redis
+      - discovery
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - baidu #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Ddocker.enable=true
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-baidu/target/"
+        target: "/jar"
+
+  aatool:
+    labels:
+      name: "活动助手数据服务"
+    image: tools-dashboard-aatool
+    depends_on:
+      - redis
+      - discovery
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - aatool #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xms64m -Xmx128m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Ddocker.enable=true
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-aatool/target/"
+        target: "/jar"
+
+  myspace:
+    labels:
+      name: "A+画册数据服务"
+    image: tools-dashboard-myspace-image
+    depends_on:
+      - redis
+      - discovery
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - myspace #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xms64m -Xmx128m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001 -Dspring.redis.host=redis -Dco.paralleluniverse.fibers.detectRunawayFibers=false
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-myspace/target/"
+        target: "/jar"
+
+  web-facade:
+    labels:
+      name: "面向Web提供的业务服务"
+    image: tools-dashboard-web-facade
+    depends_on:
+      - discovery
+      - baidu
+      - aatool
+      - myspace
+    deploy:
+      *default_swarm_deploy_prop
+    networks:
+      td-web:
+        aliases:
+          - web-facade #高可用别名
+    #用于remote debug ,结合IDEA的remote选定project源码进行调试, 端口需要不同
+#    ports:
+#      - target: 8000
+#        published: 8000
+#        protocol: tcp
+#        mode: bridge
+    environment:
+      JAVA_OPT: -Xmx64m #-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-web-facade/target/"
+        target: "/jar"
+
+  api-gateway:
+    labels:
+      name: "网关服务"
+    image: tools-dashboard-api-gateway
+    depends_on:
+      - discovery
+      - baidu
+      - aatool
+      - myspace
+      - web-facade
+    deploy:
+      *default_swarm_deploy_prop
+    ports:
+      - target: 9002
+        published: 9002
+        protocol: tcp
+        mode: bridge
+    networks:
+      td-web:
+        aliases:
+          - api-gateway #高可用别名
+    environment:
+      JAVA_OPT: -Xmx64m
+      SPRING_OPT: -Ddiscovery.dns=discovery -Ddiscovery.port=9001
+    volumes:
+      - type: "bind"
+        source: "/Users/benjaminkc/Documents/IDEASpace/tools-dashboard/tools-dashboard-api-gateway/target/"
+        target: "/jar"

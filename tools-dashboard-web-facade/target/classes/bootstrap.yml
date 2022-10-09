@@ -1,0 +1,49 @@
+discovery:
+  dns: localhost
+  port: 9001
+
+server:
+  port: 0
+
+spring:
+  application:
+    name: td-web-facade
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+  cloud:
+    config:
+      name: configAAtool
+      discovery:
+        enabled: true
+        serviceId: td-config
+
+ribbon:
+  ConnectTimeout: 580000      #比网关超时值要多
+  ReadTimeout: 580000
+
+feign:
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+management:
+  security:
+    enabled: false
+  context-path: /manage
+
+logging:
+  level:
+    org.codeworks.web: DEBUG
+  path: logs/${spring.application.name}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${discovery.dns}:${discovery.port}/eureka/
+  instance:
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health

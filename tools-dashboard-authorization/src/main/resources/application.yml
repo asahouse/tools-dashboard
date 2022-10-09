@@ -1,0 +1,17 @@
+
+#\u7528\u6237\u540D\u53CA\u5BC6\u7801,\u4F7F\u7528\u9017\u53F7\u5206\u9694\u7528\u6237,\u5206\u53F7\u5206\u9694\u540D\u4E0E\u5BC6\u7801(account1:pass1,acount2:pass2)
+#tools-dashboard:
+#  users: toolsDashboardAmwayAdmin:4bi8votHqpmXcLNn
+
+spring:
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password:
+    pool:
+      max-active: -1
+      max-idle: 50
+      min-idle: 10
+      max-wait: -1
+    timeout: 10000
